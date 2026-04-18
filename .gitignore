@@ -3,6 +3,19 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Environment Variables - NEVER COMMIT ###
+.env
+.env.local
+.env.*.local
+.env.production
+*.env
+test-*.json   
+
+### Application Properties - Sensitive Data ###
+application-local.properties
+application-dev.properties
+application-prod.properties
+
 ### STS ###
 .env
 .md
@@ -35,3 +48,25 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Logs ###
+*.log
+logs/
+
+### System Files ###
+.DS_Store
+Thumbs.db
+
+### Maven ###
+.mvn/
+*.jar.original
+
+### Temp Files ###
+*.tmp
+*.swp
+*.swo
+*~
+
+### IDE ###
+*.classpath
+*.project
