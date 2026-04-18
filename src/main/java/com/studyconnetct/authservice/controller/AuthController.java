@@ -1,9 +1,6 @@
 package com.studyconnetct.authservice.controller;
 
-import com.studyconnetct.authservice.dto.AuthRequestDto;
-import com.studyconnetct.authservice.dto.AuthResponseDto;
-import com.studyconnetct.authservice.dto.RefreshTokenRequestDto;
-import com.studyconnetct.authservice.dto.RegisterRequestDto;
+import com.studyconnetct.authservice.dto.*;
 import com.studyconnetct.authservice.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
     
@@ -46,6 +43,13 @@ public class AuthController {
         log.info("Logout endpoint called for user: {}", userId);
         authService.logout(userId);
         return ResponseEntity.noContent().build();
+    }
+    
+    @PostMapping("/validate-token")
+    public ResponseEntity<TokenValidationResponseDto> validateToken(@Valid @RequestBody TokenValidationRequestDto request) {
+        log.info("Validate token endpoint called");
+        TokenValidationResponseDto response = authService.validateToken(request);
+        return ResponseEntity.ok(response);
     }
     
     @GetMapping("/health")

@@ -42,10 +42,11 @@ public class SecurityConfig {
             // Configurar autorización de endpoints
             .authorizeHttpRequests(authz -> authz
                 // Endpoints públicos sin autenticación
-                .requestMatchers("/api/v1/auth/register").permitAll()
-                .requestMatchers("/api/v1/auth/login").permitAll()
-                .requestMatchers("/api/v1/auth/health").permitAll()
-                .requestMatchers("/api/v1/auth/refresh").permitAll()
+                .requestMatchers("/api/auth/register").permitAll()
+                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/health").permitAll()
+                .requestMatchers("/api/auth/refresh").permitAll()
+                .requestMatchers("/api/auth/validate-token").permitAll()
                 // Proteger el resto
                 .anyRequest().authenticated()
             );

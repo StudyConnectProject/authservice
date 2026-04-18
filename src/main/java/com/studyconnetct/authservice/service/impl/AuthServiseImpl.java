@@ -1,9 +1,6 @@
 package com.studyconnetct.authservice.service.impl;
 
-import com.studyconnetct.authservice.dto.AuthRequestDto;
-import com.studyconnetct.authservice.dto.AuthResponseDto;
-import com.studyconnetct.authservice.dto.RefreshTokenRequestDto;
-import com.studyconnetct.authservice.dto.RegisterRequestDto;
+import com.studyconnetct.authservice.dto.*;
 import com.studyconnetct.authservice.entity.RefreshToken;
 import com.studyconnetct.authservice.entity.Role;
 import com.studyconnetct.authservice.entity.User;
@@ -161,6 +158,39 @@ public class AuthServiseImpl implements AuthService {
     @Override
     public void logout(String userId) {
         refreshTokenRepository.deleteByUserId(java.util.UUID.fromString(userId));
+    }
+
+    @Override
+    public TokenValidationResponseDto validateToken(TokenValidationRequestDto request) {
+        log.info("Validating token");
+        
+        if (!jwtUtil.validateToken(request.getAccessToken())) {
+            throw new RuntimeException("Invalid token");
+        }
+        
+        if (jwtUtil.isTokenExpired(request.getAccessToken())) {
+            throw new RuntimeException("Token expired");
+        }
+        
+        java.util.UUID userId = jwtUtil.getUserIdFromToken(request.getAccessToken());
+        String email = jwtUtil.getEmailFromToken(request.getAccessToken());
+        
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        Set<String> roles = user.getUserRoles().stream()
+                .map(ur -> ur.getRole().getName())
+                .collect(Collectors.toSet());
+        
+        return TokenValidationResponseDto.builder()
+                .isValid(true)
+                .isExpired(false)
+                .message("Token is valid")
+                .userId(userId.toString())
+                .email(email)
+                .roles(roles)
+                .expiresAt(jwtUtil.getTokenExpirationTime())
+                .build();
     }
 
     private AuthResponseDto buildAuthResponse(User user, String accessToken, String refreshToken) {
