@@ -118,19 +118,19 @@ public class AuthServiseImpl implements AuthService {
     }
 
     @Override
-    public AuthResponseDto refreshToken(RefreshTokenRequestDto request) {
+    public AuthResponseDto refreshToken(String refreshToken, String ipAddress) {
 
-        String tokenHash = hashUtil.hashToken(request.getRefreshToken());
+        String tokenHash = hashUtil.hashToken(refreshToken);
 
-        RefreshToken refreshToken = refreshTokenRepository
+        RefreshToken refreshTokenEntity = refreshTokenRepository
                 .findByTokenHashAndIsRevokedFalse(tokenHash)
                 .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
 
-        if (refreshToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (refreshTokenEntity.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw new RuntimeException("Expired token");
         }
 
-        User user = userRepository.findById(refreshToken.getUserId())
+        User user = userRepository.findById(refreshTokenEntity.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Set<String> roles = user.getUserRoles().stream()
@@ -140,13 +140,13 @@ public class AuthServiseImpl implements AuthService {
         String newAccessToken = jwtUtil.generateAccessToken(user.getId(), user.getEmail(), roles);
         String newRefreshToken = jwtUtil.generateRefreshToken(user.getId());
 
-        refreshToken.setIsRevoked(true);
-        refreshTokenRepository.save(refreshToken);
+        refreshTokenEntity.setIsRevoked(true);
+        refreshTokenRepository.save(refreshTokenEntity);
 
         RefreshToken newToken = RefreshToken.builder()
                 .userId(user.getId())
                 .tokenHash(hashUtil.hashToken(newRefreshToken))
-                .ipAddress(request.getIpAddress())
+                .ipAddress(ipAddress)
                 .expiresAt(LocalDateTime.now().plusDays(1))
                 .build();
 

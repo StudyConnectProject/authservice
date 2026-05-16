@@ -41,12 +41,13 @@ public class SecurityConfig {
             
             // Configurar autorización de endpoints
             .authorizeHttpRequests(authz -> authz
-                // Endpoints públicos sin autenticación
+                // Endpoints públicos para autenticación y registro
                 .requestMatchers("/api/auth/register").permitAll()
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers("/api/auth/health").permitAll()
                 .requestMatchers("/api/auth/refresh").permitAll()
                 .requestMatchers("/api/auth/validate-token").permitAll()
+                .requestMatchers("/api/auth/logout/**").permitAll()
                 // Proteger el resto
                 .anyRequest().authenticated()
             );
@@ -71,7 +72,8 @@ public class SecurityConfig {
         
         // Orígenes permitidos
         configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:8080"
+            "http://localhost:8080",
+            "http://localhost:8000"
         ));
         
         // Métodos HTTP permitidos
