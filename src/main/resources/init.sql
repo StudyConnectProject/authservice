@@ -41,9 +41,10 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
 );
 
 -- Insert default roles
-INSERT INTO roles (name, is_active) VALUES 
+INSERT INTO roles (name, is_active) VALUES
 ('STUDENT', true),
-('TUTOR', true)
+('TUTOR', true),
+('ADMIN', true)
 ON CONFLICT (name) DO NOTHING;
 
 -- Create indexes for better performance
