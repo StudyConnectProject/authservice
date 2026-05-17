@@ -1,47 +1,14 @@
 services:
-  # PostgreSQL Database
-  postgres:
-    image: postgres:16-alpine
-    container_name: authservice-postgres
-    environment:
-      POSTGRES_USER: authservice_user
-      POSTGRES_PASSWORD: authservice_password
-      POSTGRES_DB: authservice_db
-      PGDATA: /var/lib/postgresql/data/pgdata
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U authservice_user -d authservice_db -h localhost"]
-      interval: 5s
-      timeout: 10s
-      retries: 20
-      start_period: 60s
-    networks:
-      - authservice-network
-    restart: unless-stopped
-
   # Auth Service
   authservice:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: authservice-app
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/authservice_db
-      SPRING_DATASOURCE_USERNAME: authservice_user
-      SPRING_DATASOURCE_PASSWORD: authservice_password
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SERVER_PORT: 8080
-      JWT_SECRET: mySecretKeyForJWTTokenGenerationAndValidationPurposeOnly12345
-      JWT_EXPIRATION: 3600000
-      JWT_REFRESH_EXPIRATION: 86400000
+    env_file:
+      - .env
     ports:
-      - "8080:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - "${SERVER_PORT:-8080}:8080"
     networks:
       - authservice-network
     restart: unless-stopped
@@ -51,10 +18,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-
-volumes:
-  postgres_data:
-    driver: local
 
 networks:
   authservice-network:
