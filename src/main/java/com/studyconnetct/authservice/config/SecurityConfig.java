@@ -70,11 +70,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Orígenes permitidos
-        configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:8080",
-            "http://localhost:8000"
-        ));
+        // Orígenes permitidos — allowedOriginPatterns soporta wildcard con credentials
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         
         // Métodos HTTP permitidos
         configuration.setAllowedMethods(Arrays.asList(
