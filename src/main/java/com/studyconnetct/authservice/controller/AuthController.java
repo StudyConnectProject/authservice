@@ -60,10 +60,10 @@ public class AuthController {
         authService.logout(userId);
         ResponseCookie cookie = ResponseCookie.from("refresh_token", "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Strict")
+                .sameSite("None")
                 .build();
         return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
@@ -85,10 +85,10 @@ public class AuthController {
     private ResponseCookie createRefreshTokenCookie(String refreshToken) {
         return ResponseCookie.from("refresh_token", refreshToken)
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)   // HTTPS requerido para SameSite=None
                 .path("/")
                 .maxAge(86400)
-                .sameSite("Strict")
+                .sameSite("None")  // Permite envío cross-site (frontend y gateway en distintos subdominios)
                 .build();
     }
 }
