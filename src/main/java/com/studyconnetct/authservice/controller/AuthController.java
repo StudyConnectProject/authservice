@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -19,6 +20,12 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     
     private final AuthService authService;
+
+    @Value("${cookie.secure:true}")
+    private boolean cookieSecure;
+
+    @Value("${cookie.same-site:None}")
+    private String cookieSameSite;
     
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDto> register(@Valid @RequestBody RegisterRequestDto request) {
@@ -41,11 +48,17 @@ public class AuthController {
     }
     
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponseDto> refresh(@CookieValue(value = "refresh_token", required = false) String refreshToken,
-                                                    HttpServletRequest request) {
+    public ResponseEntity<AuthResponseDto> refresh(
+            @CookieValue(value = "refresh_token", required = false) String refreshTokenFromCookie,
+            @org.springframework.web.bind.annotation.RequestBody(required = false) RefreshTokenRequestDto body,
+            HttpServletRequest request) {
         log.info("Refresh token endpoint called");
+        String refreshToken = refreshTokenFromCookie;
+        if ((refreshToken == null || refreshToken.isBlank()) && body != null) {
+            refreshToken = body.getRefreshToken();
+        }
         if (refreshToken == null || refreshToken.isBlank()) {
-            throw new RuntimeException("Refresh token cookie is missing");
+            throw new RuntimeException("Refresh token is missing");
         }
         AuthResponseDto response = authService.refreshToken(refreshToken, request.getRemoteAddr());
         ResponseCookie cookie = createRefreshTokenCookie(response.getRefreshToken());
@@ -85,10 +98,10 @@ public class AuthController {
     private ResponseCookie createRefreshTokenCookie(String refreshToken) {
         return ResponseCookie.from("refresh_token", refreshToken)
                 .httpOnly(true)
-                .secure(true)   // HTTPS requerido para SameSite=None
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(86400)
-                .sameSite("None")  // Permite envío cross-site (frontend y gateway en distintos subdominios)
+                .sameSite(cookieSameSite)
                 .build();
     }
 }

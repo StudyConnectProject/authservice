@@ -17,7 +17,7 @@ public class AuthResponseDto {
     @JsonProperty("access_token")
     private String accessToken;
     
-    @JsonProperty(value = "refresh_token", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty("refresh_token")
     private String refreshToken;
     
     @JsonProperty("token_type")
