@@ -203,7 +203,7 @@ public class AuthServiseImpl implements AuthService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .tokenType("Bearer")
-                .expiresIn(3600L)
+                .expiresIn(jwtUtil.getTokenExpirationTime() / 1000)
                 .user(AuthResponseDto.UserDto.builder()
                         .id(user.getId().toString())
                         .email(user.getEmail())

@@ -22,7 +22,7 @@ public class JwtUtil {
     @Value("${jwt.secret:mySecretKeyForJWTTokenGenerationAndValidationPurposeOnly12345}")
     private String jwtSecret;
     
-    @Value("${jwt.expiration:3600000}") // 1 hour in milliseconds
+    @Value("${jwt.expiration:86400000}") // 24 hours in milliseconds (default)
     private Long jwtExpiration;
     
     @Value("${jwt.refresh-expiration:86400000}") // 24 hours in milliseconds
